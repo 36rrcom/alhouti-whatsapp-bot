@@ -32,3 +32,29 @@ import os
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+from flask import Flask, request
+from twilio.rest import Client
+import os
+
+app = Flask(__name__)
+
+# بيانات Twilio من Environment Variables
+ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
+AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
+FROM_WHATSAPP = "whatsapp:+14155238886"  # Sandbox
+TO_WHATSAPP = os.environ.get("YOUR_PHONE")
+
+client = Client(ACCOUNT_SID, AUTH_TOKEN)
+
+@app.route("/alert", methods=["POST"])
+def alert():
+    data = request.json
+    message = data.get("message", "No data")
+
+    client.messages.create(
+        body=message,
+        from_=FROM_WHATSAPP,
+        to=TO_WHATSAPP
+    )
+
+    return {"status": "sent"}
